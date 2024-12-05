@@ -1,2 +1,2 @@
 -- Disable Copilot
---vim.command(":Copilot disable")
+vim.cmd":Copilot disable"
