@@ -28,3 +28,6 @@ aoc2024-*.tar
 .DS_Store
 
 .formatter.exs
+
+example.txt
+input.txt
