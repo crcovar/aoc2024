@@ -1,23 +1,24 @@
 defmodule Day09 do
+  require Integer
+
   defp get_input do
-    File.stream!("./input.txt")
+    File.stream!("./example.txt")
     |> Enum.reduce("", &(String.trim_trailing(&1) <> &2))
     |> String.split("", trim: true)
     |> Stream.map(&String.to_integer/1)
-    |> Stream.chunk_every(2)
     |> Stream.with_index()
+    |> Enum.map(& &1)
     |> Enum.map(fn
-      {[b], i} ->
-        0..(b - 1) |> Enum.reduce([], fn _, a -> [a, Integer.to_string(i)] end)
+      {0, i} when Integer.is_odd(i) ->
+        {".", [], 0}
 
-      {[b, 0], i} ->
-        0..(b - 1) |> Enum.reduce([], fn _, a -> [a, Integer.to_string(i)] end)
+      {b, i} when Integer.is_even(i) ->
+        0..(b - 1)
+        |> Enum.reduce({i, [], b}, fn _, {_, a, b} -> {div(i, 2), a ++ [div(i, 2)], b} end)
 
-      {[b, f], i} ->
-        out = 0..(b - 1) |> Enum.reduce([], fn _, a -> [a, Integer.to_string(i)] end)
-        0..(f - 1) |> Enum.reduce(out, fn _, a -> [a, "."] end)
+      {b, i} when Integer.is_odd(i) ->
+        0..(b - 1) |> Enum.reduce({".", [], b}, fn _, {_, a, b} -> {".", a ++ ["."], b} end)
     end)
-    |> List.flatten()
   end
 
   defp swap_free(list) do
@@ -35,21 +36,35 @@ defmodule Day09 do
     end
   end
 
+  defp defrag(filesystem) do
+    filesystem
+  end
+
   defp checksum(list) do
     list
     |> Enum.with_index()
     |> Enum.filter(fn {l, _} -> l != "." end)
-    |> Enum.map(fn {n, i} -> {String.to_integer(n), i} end)
     |> Enum.reduce(0, fn {n, i}, a -> n * i + a end)
   end
 
   def part1 do
     IO.puts("Day 09 part 1")
-    get_input() |> swap_free() |> checksum() |> IO.puts()
+
+    get_input()
+    |> Enum.flat_map(fn {_, l, _} -> l end)
+    |> IO.inspect()
+    |> swap_free()
+    |> checksum()
+    |> IO.puts()
   end
 
   def part2 do
     IO.puts("Day 09 part 2")
+
+    get_input()
+    |> IO.inspect()
+
+    # get_input() |> defrag() |> checksum() |> IO.puts()
   end
 end
 
