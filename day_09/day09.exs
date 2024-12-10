@@ -39,12 +39,6 @@ defmodule Day09 do
     end
   end
 
-  defp place_file({".", _, free, free_idx}, {v, file, size, idx}) do
-    [{v, file, size, idx}, {".", nil, free - size, free_idx}]
-  end
-
-  defp place_file(nil, _), do: nil
-
   defp defrag(filesystem) do
     filesystem
     |> Enum.filter(fn {v, _, _} -> v != "." end)
@@ -113,5 +107,5 @@ defmodule Day09 do
   end
 end
 
-# Day09.part1()
+Day09.part1()
 Day09.part2()
