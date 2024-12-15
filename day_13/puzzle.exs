@@ -1,5 +1,5 @@
 defmodule Day13 do
-  def parse_machine(config) do
+  defp parse_machine(config) do
     [btn_a, btn_b, prize] = config
 
     btn_a =
@@ -23,15 +23,38 @@ defmodule Day13 do
     {btn_a, btn_b, prize}
   end
 
+  defp solve(presses, machine)
+
+  defp solve({a, _}, _) when a > 99, do: nil
+  defp solve({_, b}, _) when b > 99, do: nil
+  defp solve({a, b}, {{ax, _}, {bx, _}, {px, _}}) when a * ax + b * bx > px, do: nil
+  defp solve({a, b}, {{_, ay}, {_, by}, {_, py}}) when a * ay + b * by > py, do: nil
+
+  defp solve({a, b}, prize) do
+    {{ax, ay}, {bx, by}, {px, py}} = prize
+
+    if a * ax + b * bx == px and a * ay + b * by == py do
+      {a, b}
+    else
+      solve({a, b + 1}, prize)
+    end
+  end
+
   def part1 do
     IO.puts("Day 13 part 1")
-    file = __ENV__.file |> Path.dirname() |> Path.join("example.txt")
+    file = __ENV__.file |> Path.dirname() |> Path.join("input.txt")
 
     AoC.line_input(file)
     |> Enum.filter(&(&1 != ""))
     |> Enum.chunk_every(3)
     |> Enum.map(&parse_machine/1)
-    |> IO.inspect()
+    |> Enum.map(fn machine ->
+      0..99
+      |> Enum.find_value(&solve({&1, 0}, machine))
+    end)
+    |> Enum.filter(&(&1 != nil))
+    |> Enum.reduce(0, fn {a, b}, acc -> a * 3 + b + acc end)
+    |> IO.puts()
   end
 
   def part2 do
