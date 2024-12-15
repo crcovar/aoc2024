@@ -29,5 +29,8 @@ aoc2024-*.tar
 
 .formatter.exs
 
-example.txt
+example*.txt
 input.txt
+
+*.beam
+
