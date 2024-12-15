@@ -52,26 +52,41 @@ defmodule Day12 do
       point, region, :bottom ->
         case get_perimeter(point, region) do
           [0, 0, 1, 1] -> 2
+          [0, 1, 1, 0] -> 1
+          [0, 1, 0, 1] -> 2
           _ -> 0
         end
 
       point, region, :top ->
         case get_perimeter(point, region) do
+          [0, 0, 1, 1] -> 2
+          [1, 0, 1, 0] -> 1
+          [1, 0, 0, 1] -> 2
           _ -> 0
         end
 
       point, region, :right ->
         case get_perimeter(point, region) do
+          [1, 1, 0, 0] -> 2
+          [1, 0, 0, 1] -> 1
+          [0, 1, 0, 1] -> 2
           _ -> 0
         end
 
       point, region, :left ->
         case get_perimeter(point, region) do
+          [1, 1, 0, 0] -> 2
+          [1, 0, 1, 0] -> 1
+          [0, 1, 1, 0] -> 2
           _ -> 0
         end
     end
 
     case get_perimeter({y, x}, region) do
+      [1, 0, 0, 0] -> line_check.({y - 1, x}, region, :bottom)
+      [0, 1, 0, 0] -> line_check.({y + 1, x}, region, :top)
+      [0, 0, 1, 0] -> line_check.({y, x + 1}, region, :left)
+      [0, 0, 0, 1] -> line_check.({y, x - 1}, region, :right)
       # bottom-right
       [1, 0, 1, 0] -> 1
       # bottom-left
@@ -177,6 +192,41 @@ defmodule Day12 do
 
   def part2 do
     IO.puts("Day 12 part 2")
+    file = __ENV__.file |> Path.dirname() |> Path.join("example.txt")
+    {_, _, grid} = AoC.grid_input(file)
+
+    grid
+    |> Enum.group_by(fn {_, _, crop} -> crop end, fn {y, x, _} -> {y, x} end)
+    |> Map.values()
+    |> Task.async_stream(
+      fn v ->
+        {:ok, pid} = Agent.start_link(fn -> [] end)
+
+        make_regions(v, pid)
+        |> Task.async_stream(
+          fn region ->
+            area = length(region)
+
+            sides =
+              region
+              |> Enum.reduce(0, fn c, a ->
+                sides = get_sides(c, region) |> Enum.sum()
+                a + sides
+              end)
+
+            IO.puts("area #{area} sides #{sides} cost #{area * sides}")
+            area * sides
+          end,
+          ordered: false
+        )
+        |> Enum.map(fn {_, v} -> v end)
+      end,
+      ordered: false
+    )
+    |> Enum.flat_map(fn {_, v} -> v end)
+    |> IO.inspect()
+    |> Enum.sum()
+    |> IO.puts()
   end
 end
 

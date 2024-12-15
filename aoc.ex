@@ -1,8 +1,12 @@
 defmodule AoC do
+  def line_input(filename) do
+    File.stream!(filename)
+    |> Stream.map(&String.trim(&1))
+  end
+
   def grid_input(filename) do
     grid =
-      File.stream!(filename)
-      |> Stream.map(&String.trim(&1))
+      line_input(filename)
       |> Enum.map(&String.split(&1, "", trim: true))
 
     x = length(hd(grid)) - 1
