@@ -147,7 +147,23 @@ defmodule Day17 do
 
   def part2 do
     IO.puts("#{__MODULE__} part 2")
+    file = __ENV__.file |> Path.dirname() |> Path.join("input.txt")
+
+    prog =
+      AoC.line_input(file)
+      |> Enum.reduce(%{:ip => 0, :out => []}, &parse_input(&1, &2))
+
+    IO.puts(prog[:A])
+
+    42_949_672_953..4_294_967_295
+    |> Enum.find(fn a ->
+      IO.write("\r#{a}")
+      prog = prog |> Map.put(:A, a)
+      prog |> run_program() |> then(&(Enum.reverse(&1[:out]) == &1[:instructions]))
+    end)
+    |> IO.puts()
   end
 end
 
 Day17.part1()
+Day17.part2()
